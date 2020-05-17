@@ -11,10 +11,11 @@ public class MyApplication extends JFrame {
     FileAsPanel fileAsPanel;
     ButtonPanel buttonPanel;
     NamePanel namePanel;
+    RandomID randomID;
     DataBaseConnection mySqlConnection;
     MyApplication self = this;
 
-    public MyApplication(){
+    public MyApplication() {
         setVisible(true);
         setResizable(false);
         setTitle("Phone Book");
@@ -25,6 +26,7 @@ public class MyApplication extends JFrame {
         buttonPanel = new ButtonPanel();
         namePanel = new NamePanel();
         mySqlConnection = new DataBaseConnection();
+        randomID = new RandomID();
         setJMenuBar(getMenu());
         add(appLayout());
         addToTable();
@@ -68,7 +70,7 @@ public class MyApplication extends JFrame {
         return mainPanel;
     }
 
-    private JMenuBar getMenu(){
+    private JMenuBar getMenu() {
         JMenu fileMenu = new JMenu("File");
         JMenu editMenu = new JMenu("Edit");
         JMenu helpMenu = new JMenu("Help");
@@ -86,7 +88,7 @@ public class MyApplication extends JFrame {
         });
         fileMenu.add(subExit);
         subExit.setToolTipText("Click to exit");
-        subExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,InputEvent.CTRL_DOWN_MASK));
+        subExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
 
         JMenuItem subClear = new JMenuItem("Clear");
         subClear.addActionListener(new ActionListener() {
@@ -97,7 +99,7 @@ public class MyApplication extends JFrame {
         });
         editMenu.add(subClear);
         subClear.setToolTipText("Clear all fields");
-        subClear.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,InputEvent.CTRL_DOWN_MASK));
+        subClear.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
 
         JMenuItem subUpdate = new JMenuItem("Update");
         subUpdate.addActionListener(new ActionListener() {
@@ -108,7 +110,7 @@ public class MyApplication extends JFrame {
         });
         editMenu.add(subUpdate);
         subUpdate.setToolTipText("Update Data in a Table");
-        subUpdate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U,InputEvent.CTRL_DOWN_MASK));
+        subUpdate.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, InputEvent.CTRL_DOWN_MASK));
 
         editMenu.addSeparator();
 
@@ -121,7 +123,7 @@ public class MyApplication extends JFrame {
         });
         editMenu.add(subAdd);
         subAdd.setToolTipText("Add data entered in the field");
-        subAdd.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,InputEvent.CTRL_DOWN_MASK));
+        subAdd.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
 
         JMenuItem subRemove = new JMenuItem("Remove");
         subRemove.addActionListener(new ActionListener() {
@@ -132,24 +134,25 @@ public class MyApplication extends JFrame {
         });
         editMenu.add(subRemove);
         subRemove.setToolTipText("Add selected data from table");
-        subRemove.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,InputEvent.CTRL_DOWN_MASK));
+        subRemove.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK));
 
         JMenuItem subAbout = new JMenuItem("About");
         subAbout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(self,"It's Still in trial version","Warning",JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(self, "It's Still in trial version", "Warning", JOptionPane.INFORMATION_MESSAGE);
             }
         });
         helpMenu.add(subAbout);
-        subAbout.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I,InputEvent.CTRL_DOWN_MASK));
+        subAbout.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.CTRL_DOWN_MASK));
 
         return menuBar;
     }
 
-    private void addToTable(){
+    private void addToTable() {
         JButton addBtn = buttonPanel.getAddBtn();
         DefaultTableModel model = namePanel.getModel();
+
         addBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -158,21 +161,19 @@ public class MyApplication extends JFrame {
                 String lastName = infoPanel.getSecondName().getText().trim();
                 String phone = infoPanel.getPhone().getText().trim();
                 String checked = infoPanel.getCheck().getText();
+                String id = randomID.getAlphaNumericString();
 
                 Boolean validPhone = infoPanel.isValid(phone);
 
-                if(firstName.isEmpty() || lastName.isEmpty() || phone.isEmpty()){
-                    JOptionPane.showMessageDialog(self,"All field are required", "Warning", JOptionPane.WARNING_MESSAGE);
-                }
 
-                else if (!validPhone){
-                    JOptionPane.showMessageDialog(self,"Please enter valid phone number");
-                }
-
-                else{
-                    Object[] data = { firstName, lastName, phone, checked};
+                if (firstName.isEmpty() || lastName.isEmpty() || phone.isEmpty()) {
+                    JOptionPane.showMessageDialog(self, "All field are required", "Warning", JOptionPane.WARNING_MESSAGE);
+                } else if (!validPhone) {
+                    JOptionPane.showMessageDialog(self, "Please enter valid phone number");
+                } else {
+                    Object[] data = {firstName, lastName, phone, checked};
                     model.addRow(data);
-                    mySqlConnection.addDataToSQL(firstName,lastName, phone, checked);
+                    mySqlConnection.addDataToSQL(id, firstName, lastName, phone, checked);
                     JOptionPane.showMessageDialog(self, "You are registered successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                     buttonPanel.getClearBtn().doClick();
                 }
@@ -180,12 +181,17 @@ public class MyApplication extends JFrame {
         });
     }
 
-    private void clearAll(){
+    private void clearAll() {
         JButton clearBtn = buttonPanel.getClearBtn();
         JTable table = namePanel.getTable();
         clearBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                int dataRow = table.getSelectedRow();
+                if (dataRow == -1) {
+                    JOptionPane.showMessageDialog(self, "Please, Select First", "Warning", JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
                 infoPanel.getFirstName().setText("");
                 infoPanel.getSecondName().setText("");
                 infoPanel.getPhone().setText("");
@@ -195,39 +201,39 @@ public class MyApplication extends JFrame {
         });
     }
 
-    private void removeData(){
+    private void removeData() {
         JTable table = namePanel.getTable();
         JButton removeBtn = buttonPanel.getRemoveBtn();
         DefaultTableModel model = namePanel.getModel();
+        ArrayList<PhoneBook> data = mySqlConnection.dataList();
         removeBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int dataRow = table.getSelectedRow();
-                String fName = table.getModel().getValueAt(dataRow, 0).toString();
-
-                if (dataRow == -1){
-                    JOptionPane.showMessageDialog(self, "Please, Select First", "Warning",JOptionPane.INFORMATION_MESSAGE);
+                if (dataRow == -1) {
+                    JOptionPane.showMessageDialog(self, "Please, Select First", "Warning", JOptionPane.INFORMATION_MESSAGE);
+                    return;
                 }
-                else{
-                    model.removeRow(dataRow);
-                    mySqlConnection.removeDataSQL(fName);
-                    buttonPanel.getClearBtn().doClick();
-                }}
+                String id = data.get(dataRow).getId();
+                model.removeRow(dataRow);
+                mySqlConnection.removeDataSQL(id);
+                buttonPanel.getClearBtn().doClick();
+            }
         });
     }
 
-    private void selectionData(){
+    private void selectionData() {
         JTable table = namePanel.getTable();
         DefaultTableModel model = namePanel.getModel();
         table.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int selectedRow = table.getSelectedRow();
-                infoPanel.getFirstName().setText(model.getValueAt(selectedRow,0).toString());
-                infoPanel.getSecondName().setText(model.getValueAt(selectedRow,1).toString());
-                infoPanel.getPhone().setText(model.getValueAt(selectedRow,2).toString());
+                infoPanel.getFirstName().setText(model.getValueAt(selectedRow, 0).toString());
+                infoPanel.getSecondName().setText(model.getValueAt(selectedRow, 1).toString());
+                infoPanel.getPhone().setText(model.getValueAt(selectedRow, 2).toString());
 
-                infoPanel.getCheck().setText(model.getValueAt(selectedRow,3).toString());
+                infoPanel.getCheck().setText(model.getValueAt(selectedRow, 3).toString());
                 String check = infoPanel.getCheck().getText();
                 int state = check.compareTo("Private");
                 boolean bool = (state == 0);
@@ -256,16 +262,17 @@ public class MyApplication extends JFrame {
         });
     }
 
-    private void updateData(){
+    private void updateData() {
         JButton updateBtn = buttonPanel.getUpdateBtn();
         JTable table = namePanel.getTable();
         DefaultTableModel model = namePanel.getModel();
         JButton clearBtn = buttonPanel.getClearBtn();
+        ArrayList<PhoneBook> data = mySqlConnection.dataList();
         updateBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = table.getSelectedRow();
-                if(selectedRow == -1){
+                if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(self, "You must select a row in table", "Warning", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
@@ -274,22 +281,20 @@ public class MyApplication extends JFrame {
                 String phone = infoPanel.getPhone().getText().trim();
                 String checked = infoPanel.getCheck().getText();
 
+                String id = data.get(selectedRow).getId();
+
                 Boolean validPhone = infoPanel.isValid(phone);
 
-                if(firstName.isEmpty() || lastName.isEmpty() || phone.isEmpty()){
-                    JOptionPane.showMessageDialog(self,"All field are required", "Warning", JOptionPane.WARNING_MESSAGE);
-                }
-
-                else if (!validPhone){
-                    JOptionPane.showMessageDialog(self,"Please enter valid phone number");
-                }
-
-                else{
-                    model.setValueAt(firstName,selectedRow,0);
-                    model.setValueAt(lastName,selectedRow,1);
-                    model.setValueAt(phone,selectedRow,2);
-                    model.setValueAt(checked ,selectedRow,3);
-                    mySqlConnection.updateDataSQL(firstName, lastName, phone, checked);
+                if (firstName.isEmpty() || lastName.isEmpty() || phone.isEmpty()) {
+                    JOptionPane.showMessageDialog(self, "All field are required", "Warning", JOptionPane.WARNING_MESSAGE);
+                } else if (!validPhone) {
+                    JOptionPane.showMessageDialog(self, "Please enter valid phone number");
+                } else {
+                    model.setValueAt(firstName, selectedRow, 0);
+                    model.setValueAt(lastName, selectedRow, 1);
+                    model.setValueAt(phone, selectedRow, 2);
+                    model.setValueAt(checked, selectedRow, 3);
+                    mySqlConnection.updateDataSQL(id, firstName, lastName, phone, checked);
                     JOptionPane.showMessageDialog(self, "Data updated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                     clearBtn.doClick();
                 }
@@ -297,7 +302,7 @@ public class MyApplication extends JFrame {
         });
     }
 
-    private void sortTableData(){
+    private void sortTableData() {
         JRadioButton rFsName = fileAsPanel.getFsName();
         JRadioButton rSfName = fileAsPanel.getSfName();
         JTable data = namePanel.getTable();
@@ -309,7 +314,7 @@ public class MyApplication extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 rFsName.setEnabled(false);
                 rSfName.setEnabled(true);
-                data.moveColumn(0,1);
+                data.moveColumn(0, 1);
             }
         });
 
@@ -318,16 +323,16 @@ public class MyApplication extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 rSfName.setEnabled(false);
                 rFsName.setEnabled(true);
-                data.moveColumn(1,0);
+                data.moveColumn(1, 0);
             }
         });
     }
 
-    private void showData(){
+    private void showData() {
         ArrayList<PhoneBook> data = mySqlConnection.dataList();
         DefaultTableModel model = (DefaultTableModel) namePanel.getModel();
         Object[] row = new Object[4];
-        for(int i=0; i< data.size(); i++){
+        for (int i = 0; i < data.size(); i++) {
             row[0] = data.get(i).getFirstName();
             row[1] = data.get(i).getSecondName();
             row[2] = data.get(i).getPhone();
@@ -336,7 +341,7 @@ public class MyApplication extends JFrame {
         }
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         new MyApplication();
 
     }

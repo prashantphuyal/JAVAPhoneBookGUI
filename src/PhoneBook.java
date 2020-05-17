@@ -1,11 +1,15 @@
 public class PhoneBook {
-    private String firstName,secondName, phone, status;
+    private String id,firstName,secondName, phone, status;
 
-    public PhoneBook(String firstName,String secondName, String phone, String  status){
+    public PhoneBook(String ID, String firstName,String secondName, String phone, String  status){
+        this.id = ID;
         this.firstName = firstName;
         this.secondName = secondName;
         this.phone = phone;
         this.status = status;
+    }
+    public  String getId(){
+        return this.id;
     }
     public  String getFirstName(){
         return this.firstName;

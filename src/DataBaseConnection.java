@@ -7,17 +7,18 @@ public class DataBaseConnection {
     String user = "root";
     String password = "beast10";
 
-    public void addDataToSQL(String firstName, String secondName, String phone, String status) {
+    public void addDataToSQL(String ID, String firstName, String secondName, String phone, String status) {
         try {
             Connection conn = DriverManager.getConnection(dbURL, user, password);
 
-            String addToSql = "INSERT INTO phonebook (firstName, secondName, phone, status) VALUES (?,?,?,?)";
+            String addToSql = "INSERT INTO phonebook (ID, firstName, secondName, phone, status) VALUES (?,?,?,?,?)";
             PreparedStatement statement = conn.prepareStatement(addToSql);
 
-            statement.setString(1, firstName);
-            statement.setString(2, secondName);
-            statement.setString(3, phone);
-            statement.setString(4, status);
+            statement.setString(1, ID);
+            statement.setString(2, firstName);
+            statement.setString(3, secondName);
+            statement.setString(4, phone);
+            statement.setString(5, status);
 
             statement.executeUpdate();
             System.out.println("Data Added to DataBase successfully");
@@ -37,12 +38,13 @@ public class DataBaseConnection {
             ResultSet result = statement.executeQuery(selectData);
             PhoneBook phoneBook;
             while (result.next()) {
+                String id = result.getString("ID");
                 String fName = result.getString("firstName");
                 String sName = result.getString("secondName");
                 String pPhone = result.getString("phone");
                 String nStatus = result.getString("status");
 
-                phoneBook = new PhoneBook(fName, sName, pPhone, nStatus);
+                phoneBook = new PhoneBook(id, fName, sName, pPhone, nStatus);
                 data.add(phoneBook);
             }
             System.out.println("Data Added to DataBase successfully");
@@ -54,13 +56,13 @@ public class DataBaseConnection {
         return data;
     }
 
-    public void removeDataSQL(String fName){
+    public void removeDataSQL(String id){
         try {
             Connection conn = DriverManager.getConnection(dbURL, user, password);
-            String remData = "DELETE FROM phonebook WHERE firstName = ?";
+            String remData = "DELETE FROM phonebook WHERE ID = ?";
             PreparedStatement statement = conn.prepareStatement(remData);
 
-            statement.setString(1,fName);
+            statement.setString(1,id);
             statement.executeUpdate();
 
             System.out.println("Data Removed from DataBase successfully");
@@ -71,16 +73,17 @@ public class DataBaseConnection {
         }
     }
 
-    public void updateDataSQL(String fName, String  sName, String phone, String status){
+    public void updateDataSQL(String id,String fName, String  sName, String phone, String status){
         try {
             Connection conn = DriverManager.getConnection(dbURL, user, password);
-            String upData = "UPDATE phonebook SET firstName = ?, secondName = ?, status = ? WHERE phone=? ";
+            String upData = "UPDATE phonebook SET firstName = ?, secondName = ?, status = ?,  phone = ? WHERE ID = ?";
             PreparedStatement statement = conn.prepareStatement(upData);
 
             statement.setString(1,fName);
             statement.setString(2,sName);
             statement.setString(3,status);
             statement.setString(4,phone);
+            statement.setString(5,id);
 
             statement.executeUpdate();
 
