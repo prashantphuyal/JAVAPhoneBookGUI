@@ -3,13 +3,17 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 
 public class ButtonPanel extends JPanel implements AppLayout {
-
+    /*
+     * Declaring all JButtons used below in program */
     private JButton clear;
     private JButton update;
     private JButton add;
     private JButton remove;
 
     public ButtonPanel(){
+        /*
+         * 2x2 Grid layout is used for dealing with app layout
+         * ToolTips and Mnemonic are used for shortcut keys and for better friendly environment*/
         setLayout(new GridLayout(2,2));
         setPreferredSize(new Dimension(100, 100));
         clear = new JButton("Clear");
@@ -31,12 +35,18 @@ public class ButtonPanel extends JPanel implements AppLayout {
 
     @Override
     public JPanel panelUI() {
+        /*
+         * Implementing interface AppLayout
+         * adding all buttons in panelUI so that we can call this method while doing mainLayout*/
         add(clear);
         add(update);
         add(add);
         add(remove);
-        return this;
+        return this; //return this is used so that if this method is called through another one than it returns everything inside panelUI
     }
+
+    /*
+     * Below getter method is for action listener to perform certain operation*/
     public JButton getClearBtn(){
         return clear;
     }
